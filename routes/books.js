@@ -2,6 +2,9 @@ const express = require("express");
 const Book = require("../models/book");
 const jsonschema = require("jsonschema");
 const bookSchema = require("../schemas/bookSchema.json");
+const bookSchemaPut = require("../schemas/bookSchemaPut.json");
+const bookSchemaPatch = require("../schemas/bookSchemaPatch.json");
+
 const ExpressError = require("../expressError")
 
 const router = new express.Router();
@@ -53,6 +56,13 @@ router.post("/", async function (req, res, next) {
 
 router.put("/:isbn", async function (req, res, next) {
   try {
+    if ("isbn" in req.body) {
+      throw new ExpressError("Updating isbn not allowed", 400)
+    }
+    const result = jsonschema.validate(req.body, bookSchemaPut);
+    if (!result.valid) {
+      throw new ExpressError(result.errors.map(err => err.stack), 400);
+    }
     const book = await Book.update(req.params.isbn, req.body);
     return res.json({ book });
   } catch (err) {
@@ -64,6 +74,13 @@ router.put("/:isbn", async function (req, res, next) {
 
 router.patch("/:isbn", async function (req, res, next) {
   try {
+    if ("isbn" in req.body) {
+      throw new ExpressError("Updating isbn not allowed", 400)
+    }
+    const result = jsonschema.validate(req.body, bookSchemaPatch);
+    if (!result.valid) {
+      throw new ExpressError(result.errors.map(err => err.stack), 400);
+    }
     const book = await Book.partialUpdate(req.params.isbn, req.body);
     return res.json({ book });
   } catch (err) {

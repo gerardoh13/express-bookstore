@@ -97,7 +97,7 @@ class Book {
 
   /** Update data with matching ID to data, return updated book.
 
-   * {isbn, amazon_url, author, language, pages, publisher, title, year}
+   * isbn, { amazon_url, author, language, pages, publisher, title, year}
    *
    * => {isbn, amazon_url, author, language, pages, publisher, title, year}
    *
@@ -138,11 +138,19 @@ class Book {
     }
     return result.rows[0];
   }
+  /** Update data with matching ID to partial data, return updated book.
 
+   * isbn, {(Any, ex:) amazon_url, author}
+   *
+   * => {isbn, amazon_url, author, language, pages, publisher, title, year}
+   *
+   * */
+  
   static async partialUpdate(isbn, data) {
-    let currBook = await this.findOne(isbn);
-    console.log(data)
-    return currBook
+    const currBook = await this.findOne(isbn);
+    Object.assign(currBook, data)
+    const updatedBook = await this.update(isbn, currBook)
+    return updatedBook
   }
 
   /** remove book with matching isbn. Returns undefined. */
